@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import socket from "../socket";
+import socket from "../socket"; // уже подключённый socket из socket.js
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-let socket;
 
 export default function Chat() {
   const { contact } = useParams();
@@ -16,23 +14,26 @@ export default function Chat() {
   const bottomRef = useRef();
 
   useEffect(() => {
-    socket = io(API_URL);
-
+    // Отправляем имя пользователя для авторизации в сокете
     socket.emit("auth", username);
 
-    socket.on("message", (msg) => {
-      if ((msg.from === contact && msg.to === username) || (msg.from === username && msg.to === contact)) {
-        setMessages(prev => [...prev, msg]);
+    const handleMessage = (msg) => {
+      if (
+        (msg.from === contact && msg.to === username) ||
+        (msg.from === username && msg.to === contact)
+      ) {
+        setMessages((prev) => [...prev, msg]);
       }
-    });
+    };
+
+    socket.on("message", handleMessage);
 
     return () => {
-      socket.disconnect();
+      socket.off("message", handleMessage); // убираем обработчик
     };
-  }, [contact]);
+  }, [contact, username]);
 
   useEffect(() => {
-    // Загрузить историю сообщений с сервером
     async function fetchMessages() {
       try {
         const res = await axios.get(`${API_URL}/api/messages/${contact}`, {
@@ -40,11 +41,11 @@ export default function Chat() {
         });
         setMessages(res.data);
       } catch (e) {
-        console.error(e);
+        console.error("Ошибка при загрузке сообщений:", e);
       }
     }
     fetchMessages();
-  }, [contact]);
+  }, [contact, token]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,7 +58,14 @@ export default function Chat() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20, display: "flex", flexDirection: "column", height: "calc(100vh - 110px)" }}>
+    <div style={{
+      maxWidth: 400,
+      margin: "auto",
+      padding: 20,
+      display: "flex",
+      flexDirection: "column",
+      height: "calc(100vh - 110px)"
+    }}>
       <h2>Чат с {contact}</h2>
       <div style={{
         flexGrow: 1,
@@ -90,7 +98,15 @@ export default function Chat() {
       </div>
       <div style={{ display: "flex" }}>
         <input
-          style={{ flexGrow: 1, marginRight: 5, background: "#111", color: "#eee", border: "1px solid #444", borderRadius: 5, padding: 8 }}
+          style={{
+            flexGrow: 1,
+            marginRight: 5,
+            background: "#111",
+            color: "#eee",
+            border: "1px solid #444",
+            borderRadius: 5,
+            padding: 8
+          }}
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === "Enter" && sendMessage()}
