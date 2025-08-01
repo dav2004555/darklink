@@ -13,7 +13,7 @@ export default function BottomNav() {
         height: "3rem",
         backgroundColor: "#000",
         display: "flex",
-        justifyContent: "space-around",
+        justifyContent: "space-evenly", // равномерное распределение
         alignItems: "center",
         color: "#eee",
         fontWeight: "700",
@@ -33,6 +33,8 @@ export default function BottomNav() {
             to={path}
             end
             style={({ isActive }) => ({
+              flex: "1 1 0",
+              textAlign: "center",
               color: isActive ? "#0f0" : "#555",
               textDecoration: "none",
               fontWeight: isActive ? "900" : "700",

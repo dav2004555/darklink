@@ -31,7 +31,7 @@ export default function Contacts() {
   }, []);
 
   const searchUser = async () => {
-    if (!search.trim()) return; // игнорируем пустой поиск
+    if (!search.trim()) return;
 
     setError("");
     setSearchResult(null);
@@ -70,7 +70,18 @@ export default function Contacts() {
     >
       <h2 style={{ marginBottom: "1.5rem", userSelect: "none" }}>Контакты</h2>
 
-      <div style={{ width: "100%", maxWidth: 400, marginBottom: "1.5rem" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.75rem",
+          width: "100%",
+          maxWidth: 400,
+          marginBottom: "1.5rem",
+        }}
+      >
         <input
           type="text"
           placeholder="Поиск по имени пользователя"
@@ -93,7 +104,6 @@ export default function Contacts() {
           onClick={searchUser}
           aria-label="Найти пользователя"
           style={{
-            marginTop: 10,
             width: "100%",
             padding: "8px 0",
             backgroundColor: "#222",
@@ -104,8 +114,12 @@ export default function Contacts() {
             cursor: "pointer",
             transition: "background-color 0.2s",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#333")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#333")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#222")
+          }
         >
           Найти
         </button>
@@ -146,8 +160,12 @@ export default function Contacts() {
             all: "unset",
             display: "block",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#111")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#222")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#111")
+          }
         >
           <b>{searchResult.username}</b>
         </button>
@@ -188,8 +206,12 @@ export default function Contacts() {
                 color: "#eee",
                 textAlign: "left",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#111")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
             >
               {contact}
             </button>

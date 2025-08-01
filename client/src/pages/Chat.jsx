@@ -63,41 +63,33 @@ export default function Chat() {
         width: "100vw",
         display: "flex",
         flexDirection: "column",
-        padding: "0 1rem 0 1rem",
-        boxSizing: "border-box",
-        // Фиксируем экран, предотвращаем прокрутку body
         overflow: "hidden",
-        // Чтобы ввод на мобилках не сдвигал экран и элементы
-        WebkitOverflowScrolling: "touch",
         position: "relative",
       }}
     >
+      {/* Заголовок */}
       <div
         style={{
           textAlign: "center",
-          marginTop: "1rem",
-          marginBottom: "0.75rem",
-          fontSize: "1.3rem",
+          padding: "1rem 0 0.5rem",
+          fontSize: "1.25rem",
+          fontWeight: "bold",
           userSelect: "none",
           flexShrink: 0,
-          fontWeight: "600",
         }}
       >
         Чат с {contact}
       </div>
 
+      {/* Список сообщений */}
       <div
         style={{
-          flexGrow: 1,
+          flex: 1,
           overflowY: "auto",
-          padding: "0.5rem",
+          padding: "0.5rem 1rem",
+          marginBottom: "4.5rem", // место под поле ввода + панель
           backgroundColor: "#111",
-          border: "1px solid #333",
-          borderRadius: "8px",
-          scrollbarWidth: "thin",
-          scrollbarColor: "#0f0 #222",
-          display: "flex",
-          flexDirection: "column",
+          borderTop: "1px solid #333",
         }}
       >
         {messages.map((msg, i) => (
@@ -126,18 +118,21 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Блок ввода фиксированной высоты с отступами */}
+      {/* Ввод сообщения */}
       <div
         style={{
+          position: "fixed",
+          bottom: "3rem", // над навигацией
+          left: 0,
+          right: 0,
+          padding: "0.5rem 1rem",
+          backgroundColor: "#000",
           display: "flex",
-          marginTop: "1rem",
-          marginBottom: "1rem",
-          flexShrink: 0,
           gap: "0.5rem",
           alignItems: "center",
-          // чтобы поле ввода и кнопка были всегда на виду и не перекрывались
-          position: "relative",
-          zIndex: 10,
+          zIndex: 1000,
+          boxSizing: "border-box",
+          borderTop: "1px solid #222",
         }}
       >
         <input
@@ -154,16 +149,11 @@ export default function Chat() {
             color: "#eee",
             fontFamily: "'Source Code Pro', monospace",
             fontSize: "1rem",
-            caretColor: "#0f0",
             outline: "none",
-            boxSizing: "border-box",
-            userSelect: "text",
+            caretColor: "#0f0",
           }}
           autoComplete="off"
           spellCheck={false}
-          inputMode="text"
-          autoCorrect="off"
-          autoCapitalize="off"
         />
         <button
           onClick={sendMessage}
@@ -175,18 +165,9 @@ export default function Chat() {
             borderRadius: "8px",
             fontWeight: "bold",
             fontFamily: "'Source Code Pro', monospace",
-            cursor: "pointer",
             fontSize: "1.25rem",
-            transition: "background-color 0.3s",
-            userSelect: "none",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            cursor: "pointer",
           }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0c0")}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0f0")}
-          type="button"
-          aria-label="Отправить сообщение"
         >
           ➤
         </button>
