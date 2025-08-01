@@ -17,9 +17,8 @@ export default function Contacts() {
   const fetchContacts = async () => {
     try {
       const res = await axios.get(`${API_URL}/contacts`, {
-        headers: { Authorization: "Bearer " + token }
+        headers: { Authorization: "Bearer " + token },
       });
-
       const data = res.data;
       const list = Array.isArray(data) ? data : data.contacts;
       setContacts(list || []);
@@ -38,9 +37,9 @@ export default function Contacts() {
     setSearchResult(null);
     try {
       const res = await axios.get(`${API_URL}/users`, {
-        headers: { Authorization: "Bearer " + token }
+        headers: { Authorization: "Bearer " + token },
       });
-      const user = res.data.find(u => u.username === search);
+      const user = res.data.find((u) => u.username === search);
       if (!user) {
         setError("Пользователь не найден");
       } else if (user.username === username) {
@@ -53,62 +52,99 @@ export default function Contacts() {
     }
   };
 
-  // Добавить контакт
-  const addContact = async () => {
-    if (!searchResult) return;
-    try {
-      await axios.post(`${API_URL}/api/contacts`, { contact: searchResult.username }, {
-        headers: { Authorization: "Bearer " + token }
-      });
-      fetchContacts();
-      setSearch("");
-      setSearchResult(null);
-      setError("");
-    } catch (e) {
-      setError(e.response?.data?.error || "Ошибка добавления");
-    }
-  };
-
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
-      <h2>Контакты</h2>
+    <div
+      style={{
+        backgroundColor: "#000",
+        color: "#fff",
+        fontFamily: "monospace",
+        minHeight: "100vh",
+        padding: "2rem",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Контакты</h2>
 
-      <input
-        placeholder="Поиск по юзернейму"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-      />
-      <button onClick={searchUser}>Найти</button>
-      {error && <div style={{ color: "red" }}>{error}</div>}
+      <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+        <input
+          type="text"
+          placeholder="Поиск по имени пользователя"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%",
+            maxWidth: 400,
+            padding: "8px 12px",
+            fontFamily: "monospace",
+            fontSize: "1rem",
+            borderRadius: 5,
+            border: "1px solid #444",
+            backgroundColor: "#111",
+            color: "#eee",
+          }}
+          onKeyDown={(e) => e.key === "Enter" && searchUser()}
+        />
+        <button
+          onClick={searchUser}
+          style={{
+            marginTop: 10,
+            padding: "8px 20px",
+            backgroundColor: "#222",
+            color: "#fff",
+            fontFamily: "monospace",
+            border: "1px solid #444",
+            borderRadius: 5,
+            cursor: "pointer",
+            transition: "background-color 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#333")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+        >
+          Найти
+        </button>
+      </div>
 
-      {searchResult && (
-        <div style={{
-          marginTop: 10,
-          padding: 10,
-          border: "1px solid #444",
-          background: "#222",
-          borderRadius: 5,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}>
-          <div>{searchResult.username}</div>
-          <button onClick={addContact}>Добавить</button>
+      {error && (
+        <div style={{ color: "#ff4c4c", marginBottom: "1rem", textAlign: "center" }}>
+          {error}
         </div>
       )}
 
-      <h3 style={{ marginTop: 30 }}>Мои контакты</h3>
-      {contacts.length === 0 && <div>Нет контактов</div>}
-      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-        {Array.isArray(contacts) && contacts.map(c => (
-          <li key={c} style={{
-            padding: 10,
-            borderBottom: "1px solid #444",
+      {searchResult && (
+        <div
+          onClick={() => navigate(`/chat/${searchResult.username}`)}
+          style={{
             cursor: "pointer",
+            padding: "12px",
+            borderRadius: 5,
+            border: "1px solid #444",
+            maxWidth: 400,
+            margin: "auto",
+            backgroundColor: "#111",
+            textAlign: "center",
+            userSelect: "none",
           }}
-          onClick={() => navigate(`/chat/${c}`)}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#111")}
+        >
+          <b>{searchResult.username}</b>
+        </div>
+      )}
+
+      <ul style={{ listStyle: "none", paddingLeft: 0, maxWidth: 400, margin: "2rem auto 0 auto" }}>
+        {contacts.map((contact) => (
+          <li
+            key={contact}
+            onClick={() => navigate(`/chat/${contact}`)}
+            style={{
+              padding: "10px",
+              borderBottom: "1px solid #333",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
           >
-            {c}
+            {contact}
           </li>
         ))}
       </ul>

@@ -13,23 +13,33 @@ export default function BottomNav() {
       display: "flex",
       justifyContent: "space-around",
       alignItems: "center",
-      color: "#fff",
-      fontWeight: "bold",
-      borderTop: "1px solid #444",
+      color: "#eee",
+      fontWeight: "700",
+      fontFamily: "'Source Code Pro', monospace",
+      borderTop: "1px solid #222",
       zIndex: 1000,
+      userSelect: "none",
+      letterSpacing: "0.05em"
     }}>
-      <NavLink to="/chats" style={({ isActive }) => ({
-        color: isActive ? "#0f0" : "#fff",
-        textDecoration: "none"
-      })}>Чаты</NavLink>
-      <NavLink to="/contacts" style={({ isActive }) => ({
-        color: isActive ? "#0f0" : "#fff",
-        textDecoration: "none"
-      })}>Контакты</NavLink>
-      <NavLink to="/settings" style={({ isActive }) => ({
-        color: isActive ? "#0f0" : "#fff",
-        textDecoration: "none"
-      })}>Настройки</NavLink>
+      {["Чаты", "Контакты", "Настройки"].map((label, idx) => {
+        const path = label === "Чаты" ? "/chats" : label === "Контакты" ? "/contacts" : "/settings";
+        return (
+          <NavLink
+            key={idx}
+            to={path}
+            style={({ isActive }) => ({
+              color: isActive ? "#0f0" : "#555",
+              textDecoration: "none",
+              fontWeight: isActive ? "900" : "700",
+              borderBottom: isActive ? "2px solid #0f0" : "2px solid transparent",
+              paddingBottom: 6,
+              transition: "color 0.2s, border-bottom 0.2s"
+            })}
+          >
+            {label}
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

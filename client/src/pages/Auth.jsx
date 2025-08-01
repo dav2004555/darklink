@@ -29,27 +29,88 @@ export default function Auth() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
-      <h2>{isLogin ? "Вход" : "Регистрация"}</h2>
+    <div
+      style={{
+        maxWidth: 400,
+        margin: "auto",
+        padding: "2rem",
+        backgroundColor: "#000",
+        color: "#fff",
+        fontFamily: "monospace",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        {isLogin ? "Вход" : "Регистрация"}
+      </h2>
       <input
         placeholder="Имя пользователя"
         value={username}
         onChange={e => setUsername(e.target.value)}
+        style={{
+          background: "#111",
+          color: "#fff",
+          border: "1px solid #333",
+          padding: "0.75rem",
+          marginBottom: "1rem",
+          width: "100%",
+          fontFamily: "monospace",
+        }}
       />
-      <br />
       <input
         placeholder="Пароль"
         type="password"
         value={password}
         onChange={e => setPassword(e.target.value)}
+        style={{
+          background: "#111",
+          color: "#fff",
+          border: "1px solid #333",
+          padding: "0.75rem",
+          marginBottom: "1rem",
+          width: "100%",
+          fontFamily: "monospace",
+        }}
       />
-      <br />
-      <button onClick={submit}>{isLogin ? "Войти" : "Зарегистрироваться"}</button>
-      <br />
-      <button onClick={() => { setIsLogin(!isLogin); setError(""); }}>
+      <button
+        onClick={submit}
+        style={{
+          background: "#fff",
+          color: "#000",
+          border: "none",
+          padding: "0.75rem",
+          marginBottom: "1rem",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontFamily: "monospace",
+        }}
+      >
+        {isLogin ? "Войти" : "Зарегистрироваться"}
+      </button>
+      <button
+        onClick={() => {
+          setIsLogin(!isLogin);
+          setError("");
+        }}
+        style={{
+          background: "none",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline",
+          fontFamily: "monospace",
+        }}
+      >
         {isLogin ? "Нет аккаунта? Зарегистрироваться" : "Есть аккаунт? Войти"}
       </button>
-      <div style={{ color: "red" }}>{error}</div>
+      {error && (
+        <div style={{ color: "#f55", marginTop: "1rem", fontFamily: "monospace" }}>
+          {error}
+        </div>
+      )}
     </div>
   );
 }
