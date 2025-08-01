@@ -24,9 +24,13 @@ app.use(express.json());
 // Отдача статических файлов фронтенда из папки public
 app.use(express.static(path.join(__dirname, "public")));
 
-// При всех остальных запросах отдаем index.html (для SPA)
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// При всех остальных GET-запросах отдаём index.html (для SPA)
+app.get("*", (req, res, next) => {
+  if (req.method === "GET") {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  } else {
+    next();
+  }
 });
 
 const PORT = process.env.PORT || 4000;
