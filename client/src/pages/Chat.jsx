@@ -36,7 +36,7 @@ export default function Chat() {
   useEffect(() => {
     async function fetchMessages() {
       try {
-        const res = await axios.get(`${API_URL}/api/messages/${contact}`, {
+        const res = await axios.get(`${API_URL}/messages/${contact}`, {
           headers: { Authorization: "Bearer " + token }
         });
         setMessages(res.data);

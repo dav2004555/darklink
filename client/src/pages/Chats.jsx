@@ -14,7 +14,7 @@ export default function Chats() {
   useEffect(() => {
     async function fetchChats() {
       try {
-        const res = await axios.get(`${API_URL}/api/contacts`, {
+        const res = await axios.get(`${API_URL}/contacts`, {
           headers: { Authorization: "Bearer " + token }
         });
         setContacts(res.data);

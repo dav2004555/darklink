@@ -14,12 +14,12 @@ export default function Auth() {
   const submit = async () => {
     try {
       if (isLogin) {
-        const res = await axios.post(`${API_URL}/api/login`, { username, password });
+        const res = await axios.post(`${API_URL}/login`, { username, password });
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("username", username);
         navigate("/contacts");
       } else {
-        await axios.post(`${API_URL}/api/register`, { username, password });
+        await axios.post(`${API_URL}/register`, { username, password });
         setIsLogin(true);
         setError("Регистрация прошла успешно, войдите");
       }
