@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import io from "socket.io-client";
+import socket from "../socket";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
