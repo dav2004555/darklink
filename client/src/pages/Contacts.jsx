@@ -19,7 +19,10 @@ export default function Contacts() {
       const res = await axios.get(`${API_URL}/contacts`, {
         headers: { Authorization: "Bearer " + token }
       });
-      setContacts(res.data);
+
+      const data = res.data;
+      const list = Array.isArray(data) ? data : data.contacts;
+      setContacts(list || []);
     } catch (e) {
       console.error(e);
     }
@@ -97,7 +100,7 @@ export default function Contacts() {
       <h3 style={{ marginTop: 30 }}>Мои контакты</h3>
       {contacts.length === 0 && <div>Нет контактов</div>}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-        {contacts.map(c => (
+        {Array.isArray(contacts) && contacts.map(c => (
           <li key={c} style={{
             padding: 10,
             borderBottom: "1px solid #444",
