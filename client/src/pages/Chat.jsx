@@ -35,7 +35,7 @@ export default function Chat() {
     // Загрузить историю сообщений с сервером
     async function fetchMessages() {
       try {
-        const res = await axios.get(`${API_URL}/messages/${contact}`, {
+        const res = await axios.get(`${API_URL}/api/messages/${contact}`, {
           headers: { Authorization: "Bearer " + token }
         });
         setMessages(res.data);

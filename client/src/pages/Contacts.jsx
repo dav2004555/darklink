@@ -57,7 +57,7 @@ export default function Contacts() {
   const addContact = async () => {
     if (!searchResult) return;
     try {
-      await axios.post(`${API_URL}/contacts`, { contact: searchResult.username }, {
+      await axios.post(`${API_URL}/api/contacts`, { contact: searchResult.username }, {
         headers: { Authorization: "Bearer " + token }
       });
       fetchContacts();
