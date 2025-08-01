@@ -5,6 +5,11 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import { Server } from "socket.io";
 import http from "http";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +17,14 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(cors());
 app.use(express.json());
+
+// Отдача статических файлов фронтенда из папки public
+app.use(express.static(path.join(__dirname, "public")));
+
+// При всех остальных запросах отдаем index.html (для SPA)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 const JWT_SECRET = "secret"; // Для простоты, можно вынести в env
 
@@ -109,7 +122,6 @@ app.get("/messages/:contact", authMiddleware, async (req, res) => {
   const { contact } = req.params;
   const user = req.username;
 
-  // Получаем все сообщения от и до контакта, сортируем по времени
   const messages = await Message.find({
     $or: [
       { from: user, to: contact },
@@ -133,12 +145,10 @@ io.on("connection", (socket) => {
 
   socket.on("message", async ({ from, to, text }) => {
     const newMsg = await Message.create({ from, to, text });
-    // Отправляем сообщение получателю, если онлайн
     const toSocketId = onlineUsers.get(to);
     if (toSocketId) {
       io.to(toSocketId).emit("message", newMsg);
     }
-    // Отправляем и отправителю, чтобы обновить чат у него
     const fromSocketId = onlineUsers.get(from);
     if (fromSocketId) {
       io.to(fromSocketId).emit("message", newMsg);
