@@ -13,7 +13,6 @@ export default function Contacts() {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Получить контакты
   const fetchContacts = async () => {
     try {
       const res = await axios.get(`${API_URL}/contacts`, {
@@ -31,7 +30,6 @@ export default function Contacts() {
     fetchContacts();
   }, []);
 
-  // Поиск пользователя по юзернейму
   const searchUser = async () => {
     setError("");
     setSearchResult(null);
@@ -56,23 +54,29 @@ export default function Contacts() {
     <div
       style={{
         backgroundColor: "#000",
-        color: "#fff",
+        color: "#eee",
         fontFamily: "monospace",
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100vw",
         padding: "2rem",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        overflow: "hidden",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Контакты</h2>
+      <h2 style={{ marginBottom: "1.5rem", userSelect: "none" }}>Контакты</h2>
 
-      <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+      <div style={{ width: "100%", maxWidth: 400, marginBottom: "1.5rem" }}>
         <input
           type="text"
           placeholder="Поиск по имени пользователя"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && searchUser()}
           style={{
             width: "100%",
-            maxWidth: 400,
             padding: "8px 12px",
             fontFamily: "monospace",
             fontSize: "1rem",
@@ -81,15 +85,15 @@ export default function Contacts() {
             backgroundColor: "#111",
             color: "#eee",
           }}
-          onKeyDown={(e) => e.key === "Enter" && searchUser()}
         />
         <button
           onClick={searchUser}
           style={{
             marginTop: 10,
-            padding: "8px 20px",
+            width: "100%",
+            padding: "8px 0",
             backgroundColor: "#222",
-            color: "#fff",
+            color: "#eee",
             fontFamily: "monospace",
             border: "1px solid #444",
             borderRadius: 5,
@@ -104,7 +108,14 @@ export default function Contacts() {
       </div>
 
       {error && (
-        <div style={{ color: "#ff4c4c", marginBottom: "1rem", textAlign: "center" }}>
+        <div
+          style={{
+            color: "#ff4c4c",
+            marginBottom: "1rem",
+            textAlign: "center",
+            userSelect: "none",
+          }}
+        >
           {error}
         </div>
       )}
@@ -117,11 +128,13 @@ export default function Contacts() {
             padding: "12px",
             borderRadius: 5,
             border: "1px solid #444",
+            width: "100%",
             maxWidth: 400,
-            margin: "auto",
             backgroundColor: "#111",
             textAlign: "center",
             userSelect: "none",
+            marginBottom: "1.5rem",
+            transition: "background-color 0.2s",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#111")}
@@ -130,7 +143,21 @@ export default function Contacts() {
         </div>
       )}
 
-      <ul style={{ listStyle: "none", paddingLeft: 0, maxWidth: 400, margin: "2rem auto 0 auto" }}>
+      <ul
+        style={{
+          listStyle: "none",
+          paddingLeft: 0,
+          margin: 0,
+          width: "100%",
+          maxWidth: 400,
+          flexGrow: 1,
+          overflowY: "auto",
+          borderTop: "1px solid #333",
+          borderBottom: "1px solid #333",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#0f0 #222",
+        }}
+      >
         {contacts.map((contact) => (
           <li
             key={contact}
@@ -140,6 +167,7 @@ export default function Contacts() {
               borderBottom: "1px solid #333",
               cursor: "pointer",
               transition: "background-color 0.2s",
+              userSelect: "none",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}

@@ -16,17 +16,19 @@ export default function Settings() {
         backgroundColor: "#000",
         color: "#fff",
         fontFamily: "monospace",
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100vw",
         padding: "2rem",
+        boxSizing: "border-box",
         maxWidth: 400,
-        margin: "auto",
+        margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "start",
         alignItems: "center",
+        justifyContent: "flex-start",
       }}
     >
-      <h2 style={{ marginBottom: "2rem" }}>Настройки</h2>
+      <h2 style={{ marginBottom: "2rem", userSelect: "none" }}>Настройки</h2>
       <button
         onClick={logout}
         style={{

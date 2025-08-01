@@ -43,19 +43,48 @@ export default function Chats() {
     <div
       style={{
         backgroundColor: "#000",
-        color: "#fff",
-        fontFamily: "monospace",
-        minHeight: "100vh",
-        padding: "2rem",
+        color: "#eee",
+        fontFamily: "'Source Code Pro', monospace",
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+        padding: "1rem",
+        boxSizing: "border-box",
+        overflow: "hidden",
       }}
     >
-      <div style={{ textAlign: "center", fontSize: "1.5rem", marginBottom: "1.5rem" }}>
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "1.5rem",
+          marginBottom: "1.5rem",
+          flexShrink: 0,
+          userSelect: "none",
+        }}
+      >
         Чаты
       </div>
 
-      {contacts.length === 0 && <div>Нет чатов</div>}
+      {contacts.length === 0 && (
+        <div style={{ textAlign: "center", flexGrow: 1, paddingTop: "2rem" }}>
+          Нет чатов
+        </div>
+      )}
 
-      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+      <ul
+        style={{
+          listStyle: "none",
+          paddingLeft: 0,
+          margin: 0,
+          overflowY: "auto",
+          flexGrow: 1,
+          borderTop: "1px solid #333",
+          borderBottom: "1px solid #333",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#0f0 #222",
+        }}
+      >
         {contacts.map((contact) => (
           <li
             key={contact}
@@ -70,7 +99,7 @@ export default function Chats() {
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
           >
             <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{contact}</div>
-            <div style={{ color: "#aaa", fontSize: "0.9rem" }}>
+            <div style={{ color: "#777", fontSize: "0.9rem" }}>
               {lastMessages[contact] || "Нет сообщений"}
             </div>
           </li>

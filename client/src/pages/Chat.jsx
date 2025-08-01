@@ -57,15 +57,26 @@ export default function Chat() {
     <div
       style={{
         backgroundColor: "#000",
-        color: "#fff",
-        fontFamily: "monospace",
+        color: "#eee",
+        fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
+        width: "100vw",
         display: "flex",
         flexDirection: "column",
         padding: "1rem",
+        boxSizing: "border-box",
+        overflow: "hidden", // фиксируем экран, чтобы не прокручивался весь body
       }}
     >
-      <div style={{ textAlign: "center", marginBottom: "1rem", fontSize: "1.2rem" }}>
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: "1rem",
+          fontSize: "1.2rem",
+          userSelect: "none",
+          flexShrink: 0,
+        }}
+      >
         Чат с {contact}
       </div>
 
@@ -77,6 +88,8 @@ export default function Chat() {
           backgroundColor: "#111",
           border: "1px solid #333",
           borderRadius: "8px",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#0f0 #222",
         }}
       >
         {messages.map((msg, i) => (
@@ -93,7 +106,7 @@ export default function Chat() {
                 padding: "0.5rem 1rem",
                 borderRadius: "12px",
                 backgroundColor: msg.from === username ? "#222" : "#333",
-                color: "#fff",
+                color: "#eee",
                 maxWidth: "70%",
                 wordBreak: "break-word",
               }}
@@ -105,7 +118,13 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ display: "flex", marginTop: "1rem" }}>
+      <div
+        style={{
+          display: "flex",
+          marginTop: "1rem",
+          flexShrink: 0,
+        }}
+      >
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -117,8 +136,8 @@ export default function Chat() {
             borderRadius: "8px",
             border: "1px solid #333",
             backgroundColor: "#111",
-            color: "#fff",
-            fontFamily: "monospace",
+            color: "#eee",
+            fontFamily: "'Source Code Pro', monospace",
             marginRight: "0.5rem",
           }}
         />
@@ -126,14 +145,17 @@ export default function Chat() {
           onClick={sendMessage}
           style={{
             padding: "0.75rem 1rem",
-            backgroundColor: "#fff",
+            backgroundColor: "#0f0",
             color: "#000",
             border: "none",
             borderRadius: "8px",
             fontWeight: "bold",
-            fontFamily: "monospace",
+            fontFamily: "'Source Code Pro', monospace",
             cursor: "pointer",
+            transition: "background-color 0.3s",
           }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0c0")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0f0")}
         >
           ➤
         </button>
