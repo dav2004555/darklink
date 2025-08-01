@@ -54,20 +54,21 @@ export default function Chats() {
         overflow: "hidden",
       }}
     >
-      <div
+      <header
         style={{
           textAlign: "center",
           fontSize: "1.5rem",
-          marginBottom: "1.5rem",
+          marginBottom: "1rem",
           flexShrink: 0,
           userSelect: "none",
+          fontWeight: "600",
         }}
       >
         Чаты
-      </div>
+      </header>
 
       {contacts.length === 0 && (
-        <div style={{ textAlign: "center", flexGrow: 1, paddingTop: "2rem" }}>
+        <div style={{ textAlign: "center", flexGrow: 1, paddingTop: "2rem", color: "#555" }}>
           Нет чатов
         </div>
       )}
@@ -84,24 +85,33 @@ export default function Chats() {
           scrollbarWidth: "thin",
           scrollbarColor: "#0f0 #222",
         }}
+        aria-label="Список контактов"
       >
         {contacts.map((contact) => (
-          <li
-            key={contact}
-            onClick={() => navigate(`/chat/${contact}`)}
-            style={{
-              padding: "1rem",
-              borderBottom: "1px solid #333",
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-          >
-            <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{contact}</div>
-            <div style={{ color: "#777", fontSize: "0.9rem" }}>
-              {lastMessages[contact] || "Нет сообщений"}
-            </div>
+          <li key={contact}>
+            <button
+              onClick={() => navigate(`/chat/${contact}`)}
+              style={{
+                all: "unset", // убираем дефолтные стили кнопки
+                display: "block",
+                width: "100%",
+                padding: "1rem",
+                borderBottom: "1px solid #333",
+                cursor: "pointer",
+                transition: "background-color 0.25s ease",
+                textAlign: "left",
+                color: "#eee",
+                fontFamily: "'Source Code Pro', monospace",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              aria-label={`Перейти в чат с ${contact}`}
+            >
+              <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{contact}</div>
+              <div style={{ color: "#777", fontSize: "0.9rem", marginTop: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {lastMessages[contact] || "Нет сообщений"}
+              </div>
+            </button>
           </li>
         ))}
       </ul>

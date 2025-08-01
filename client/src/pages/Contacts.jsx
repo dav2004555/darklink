@@ -31,6 +31,8 @@ export default function Contacts() {
   }, []);
 
   const searchUser = async () => {
+    if (!search.trim()) return; // игнорируем пустой поиск
+
     setError("");
     setSearchResult(null);
     try {
@@ -55,7 +57,7 @@ export default function Contacts() {
       style={{
         backgroundColor: "#000",
         color: "#eee",
-        fontFamily: "monospace",
+        fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
         width: "100vw",
         padding: "2rem",
@@ -75,10 +77,11 @@ export default function Contacts() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && searchUser()}
+          aria-label="Поиск пользователя по имени"
           style={{
             width: "100%",
             padding: "8px 12px",
-            fontFamily: "monospace",
+            fontFamily: "'Source Code Pro', monospace",
             fontSize: "1rem",
             borderRadius: 5,
             border: "1px solid #444",
@@ -88,13 +91,14 @@ export default function Contacts() {
         />
         <button
           onClick={searchUser}
+          aria-label="Найти пользователя"
           style={{
             marginTop: 10,
             width: "100%",
             padding: "8px 0",
             backgroundColor: "#222",
             color: "#eee",
-            fontFamily: "monospace",
+            fontFamily: "'Source Code Pro', monospace",
             border: "1px solid #444",
             borderRadius: 5,
             cursor: "pointer",
@@ -115,14 +119,16 @@ export default function Contacts() {
             textAlign: "center",
             userSelect: "none",
           }}
+          role="alert"
         >
           {error}
         </div>
       )}
 
       {searchResult && (
-        <div
+        <button
           onClick={() => navigate(`/chat/${searchResult.username}`)}
+          aria-label={`Перейти в чат с ${searchResult.username}`}
           style={{
             cursor: "pointer",
             padding: "12px",
@@ -135,12 +141,16 @@ export default function Contacts() {
             userSelect: "none",
             marginBottom: "1.5rem",
             transition: "background-color 0.2s",
+            fontFamily: "'Source Code Pro', monospace",
+            color: "#eee",
+            all: "unset",
+            display: "block",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#111")}
         >
           <b>{searchResult.username}</b>
-        </div>
+        </button>
       )}
 
       <ul
@@ -152,27 +162,37 @@ export default function Contacts() {
           maxWidth: 400,
           flexGrow: 1,
           overflowY: "auto",
+          maxHeight: "calc(100vh - 320px)",
           borderTop: "1px solid #333",
           borderBottom: "1px solid #333",
           scrollbarWidth: "thin",
           scrollbarColor: "#0f0 #222",
         }}
+        aria-label="Список контактов"
       >
         {contacts.map((contact) => (
-          <li
-            key={contact}
-            onClick={() => navigate(`/chat/${contact}`)}
-            style={{
-              padding: "10px",
-              borderBottom: "1px solid #333",
-              cursor: "pointer",
-              transition: "background-color 0.2s",
-              userSelect: "none",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-          >
-            {contact}
+          <li key={contact}>
+            <button
+              onClick={() => navigate(`/chat/${contact}`)}
+              aria-label={`Перейти в чат с ${contact}`}
+              style={{
+                all: "unset",
+                display: "block",
+                width: "100%",
+                padding: "10px",
+                borderBottom: "1px solid #333",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+                userSelect: "none",
+                fontFamily: "'Source Code Pro', monospace",
+                color: "#eee",
+                textAlign: "left",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >
+              {contact}
+            </button>
           </li>
         ))}
       </ul>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +10,20 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Для предотвращения дергания экрана на мобилках при фокусе
+  useEffect(() => {
+    // Запрет масштабирования при фокусе input в мобильных браузерах
+    const metaViewport = document.querySelector('meta[name=viewport]');
+    if (!metaViewport) {
+      const meta = document.createElement("meta");
+      meta.name = "viewport";
+      meta.content = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no";
+      document.head.appendChild(meta);
+    } else {
+      metaViewport.content = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no";
+    }
+  }, []);
 
   const submit = async () => {
     try {
@@ -31,7 +45,7 @@ export default function Auth() {
   return (
     <div
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         backgroundColor: "#000",
         color: "#eee",
         fontFamily: "'Source Code Pro', monospace",
@@ -39,46 +53,82 @@ export default function Auth() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        padding: "0 1rem",
+        padding: "1rem",
+        boxSizing: "border-box",
       }}
     >
-      <div style={{ maxWidth: 360, width: "100%" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>
+      <div
+        style={{
+          maxWidth: 360,
+          width: "100%",
+          padding: "1rem",
+          boxSizing: "border-box",
+          borderRadius: 8,
+          backgroundColor: "#111",
+          boxShadow: "0 0 10px rgba(0,255,0,0.2)",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            marginBottom: "2rem",
+            userSelect: "none",
+            fontWeight: "700",
+            fontSize: "1.8rem",
+          }}
+        >
           {isLogin ? "Вход" : "Регистрация"}
         </h2>
+
         <input
           placeholder="Имя пользователя"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value.trimStart())} // не даём вводить пробелы в начале
           style={{
             background: "#111",
             color: "#eee",
             border: "1px solid #444",
-            padding: "0.75rem",
+            padding: "0.75rem 1rem",
             marginBottom: "1rem",
             width: "100%",
             fontFamily: "'Source Code Pro', monospace",
-            borderRadius: 4,
+            borderRadius: 6,
+            fontSize: "1rem",
+            boxSizing: "border-box",
+            caretColor: "#0f0",
+            transition: "border-color 0.3s",
           }}
           autoComplete="username"
+          spellCheck={false}
+          onFocus={(e) => (e.target.style.borderColor = "#0f0")}
+          onBlur={(e) => (e.target.style.borderColor = "#444")}
         />
+
         <input
           placeholder="Пароль"
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           style={{
             background: "#111",
             color: "#eee",
             border: "1px solid #444",
-            padding: "0.75rem",
+            padding: "0.75rem 1rem",
             marginBottom: "1.5rem",
             width: "100%",
             fontFamily: "'Source Code Pro', monospace",
-            borderRadius: 4,
+            borderRadius: 6,
+            fontSize: "1rem",
+            boxSizing: "border-box",
+            caretColor: "#0f0",
+            transition: "border-color 0.3s",
           }}
           autoComplete="current-password"
+          spellCheck={false}
+          onFocus={(e) => (e.target.style.borderColor = "#0f0")}
+          onBlur={(e) => (e.target.style.borderColor = "#444")}
         />
+
         <button
           onClick={submit}
           style={{
@@ -89,20 +139,27 @@ export default function Auth() {
             width: "100%",
             fontWeight: "700",
             cursor: "pointer",
-            borderRadius: 4,
+            borderRadius: 6,
             fontFamily: "'Source Code Pro', monospace",
             marginBottom: "1rem",
+            fontSize: "1.1rem",
             transition: "background-color 0.3s",
+            userSelect: "none",
           }}
-          onMouseOver={e => (e.currentTarget.style.backgroundColor = "#0c0")}
-          onMouseOut={e => (e.currentTarget.style.backgroundColor = "#0f0")}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0c0")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0f0")}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          type="button"
         >
           {isLogin ? "Войти" : "Зарегистрироваться"}
         </button>
+
         <button
           onClick={() => {
             setIsLogin(!isLogin);
             setError("");
+            setUsername("");
+            setPassword("");
           }}
           style={{
             background: "none",
@@ -112,10 +169,15 @@ export default function Auth() {
             textDecoration: "underline",
             fontFamily: "'Source Code Pro', monospace",
             width: "100%",
+            padding: "0",
+            userSelect: "none",
+            fontSize: "0.9rem",
           }}
+          type="button"
         >
           {isLogin ? "Нет аккаунта? Зарегистрироваться" : "Есть аккаунт? Войти"}
         </button>
+
         {error && (
           <div
             style={{
@@ -123,7 +185,11 @@ export default function Auth() {
               marginTop: "1.5rem",
               fontFamily: "'Source Code Pro', monospace",
               textAlign: "center",
+              userSelect: "none",
+              minHeight: "1.4rem",
+              lineHeight: "1.4rem",
             }}
+            aria-live="polite"
           >
             {error}
           </div>

@@ -14,8 +14,8 @@ export default function Settings() {
     <div
       style={{
         backgroundColor: "#000",
-        color: "#fff",
-        fontFamily: "monospace",
+        color: "#eee",
+        fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
         width: "100vw",
         padding: "2rem",
@@ -31,13 +31,14 @@ export default function Settings() {
       <h2 style={{ marginBottom: "2rem", userSelect: "none" }}>Настройки</h2>
       <button
         onClick={logout}
+        aria-label="Выйти из аккаунта"
         style={{
           backgroundColor: "#e03e3e",
           border: "none",
           borderRadius: 5,
           padding: "10px 20px",
-          color: "#fff",
-          fontFamily: "monospace",
+          color: "#eee",
+          fontFamily: "'Source Code Pro', monospace",
           fontWeight: "bold",
           fontSize: "1rem",
           cursor: "pointer",
