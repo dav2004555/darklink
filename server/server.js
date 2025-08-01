@@ -7,6 +7,9 @@ import { Server } from "socket.io";
 import http from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,16 +29,22 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-const JWT_SECRET = "secret"; // Для простоты, можно вынести в env
+const PORT = process.env.PORT || 4000;
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/messenger";
 
 // Подключение к MongoDB
-mongoose.connect("mongodb://localhost:27017/messenger");
+mongoose.connect(MONGO_URL).then(() => {
+  console.log("MongoDB connected");
+}).catch(err => {
+  console.error("MongoDB connection error:", err);
+});
 
 // Модели
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
-  contacts: [String], // список имён пользователей — контактов
+  contacts: [String],
 });
 
 const MessageSchema = new mongoose.Schema({
@@ -86,7 +95,7 @@ app.post("/login", async (req, res) => {
   res.json({ token });
 });
 
-// Получить список всех пользователей (для поиска контактов)
+// Получить список всех пользователей
 app.get("/users", authMiddleware, async (req, res) => {
   const users = await User.find({}, "username").lean();
   res.json(users);
@@ -98,9 +107,9 @@ app.get("/contacts", authMiddleware, async (req, res) => {
   res.json(user.contacts || []);
 });
 
-// Добавить контакт (по имени)
+// Добавить контакт
 app.post("/contacts", authMiddleware, async (req, res) => {
-  const { contact } = req.body; // имя пользователя контакта
+  const { contact } = req.body;
   if (contact === req.username) return res.status(400).json({ error: "Cannot add yourself" });
 
   const contactUser = await User.findOne({ username: contact });
@@ -117,7 +126,7 @@ app.post("/contacts", authMiddleware, async (req, res) => {
   res.json({ success: true });
 });
 
-// Получить сообщения между текущим пользователем и контактом
+// Получить сообщения между пользователями
 app.get("/messages/:contact", authMiddleware, async (req, res) => {
   const { contact } = req.params;
   const user = req.username;
@@ -132,7 +141,7 @@ app.get("/messages/:contact", authMiddleware, async (req, res) => {
   res.json(messages);
 });
 
-// Сокеты с хранением соединений по username
+// Сокеты
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
@@ -166,5 +175,4 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = 4000;
-server.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
