@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -11,11 +12,15 @@ export default function Settings() {
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.3 }}
       style={{
-        backgroundColor: "#000",
-        color: "#eee",
-        fontFamily: "'Source Code Pro', monospace",
+        backgroundColor: "#0a0a0a",
+        color: "#ddd",
+        fontFamily: "'Inter', monospace",
         height: "100vh",
         width: "100vw",
         padding: "2rem",
@@ -28,28 +33,39 @@ export default function Settings() {
         justifyContent: "flex-start",
       }}
     >
-      <h2 style={{ marginBottom: "2rem", userSelect: "none" }}>Настройки</h2>
-      <button
-        onClick={logout}
-        aria-label="Выйти из аккаунта"
+      <motion.h2
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
         style={{
-          backgroundColor: "#e03e3e",
-          border: "none",
-          borderRadius: 5,
-          padding: "10px 20px",
-          color: "#eee",
-          fontFamily: "'Source Code Pro', monospace",
-          fontWeight: "bold",
-          fontSize: "1rem",
-          cursor: "pointer",
-          transition: "background-color 0.2s",
+          marginBottom: "2rem",
+          fontWeight: "600",
+          fontSize: "1.5rem",
           userSelect: "none",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#c22f2f")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#e03e3e")}
       >
-        Выйти
-      </button>
-    </div>
+        Настройки
+      </motion.h2>
+
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.96 }}
+        onClick={logout}
+        style={{
+          backgroundColor: "#1c1c1c",
+          border: "1px solid #333",
+          borderRadius: "12px",
+          padding: "12px 28px",
+          color: "#f55",
+          fontFamily: "'Inter', monospace",
+          fontSize: "1rem",
+          fontWeight: "500",
+          cursor: "pointer",
+          transition: "all 0.25s ease",
+        }}
+      >
+        Выйти из аккаунта
+      </motion.button>
+    </motion.div>
   );
 }

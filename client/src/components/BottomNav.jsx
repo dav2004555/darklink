@@ -2,6 +2,12 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 export default function BottomNav() {
+  const navItems = [
+    { label: "Чаты", path: "/chats" },
+    { label: "Контакты", path: "/contacts" },
+    { label: "Настройки", path: "/settings" },
+  ];
+
   return (
     <nav
       aria-label="Основная навигация"
@@ -10,43 +16,42 @@ export default function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: "3rem",
-        backgroundColor: "#000",
+        height: "3.5rem",
+        backgroundColor: "#0a0a0a",
         display: "flex",
-        justifyContent: "space-evenly", // равномерное распределение
+        justifyContent: "space-evenly",
         alignItems: "center",
-        color: "#eee",
-        fontWeight: "700",
         fontFamily: "'Source Code Pro', monospace",
         borderTop: "1px solid #222",
-        zIndex: 1000,
         userSelect: "none",
+        zIndex: 1000,
         letterSpacing: "0.05em",
-        paddingTop: 4,
+        boxShadow: "0 -2px 6px rgba(0, 0, 0, 0.7)",
       }}
     >
-      {["Чаты", "Контакты", "Настройки"].map((label, idx) => {
-        const path = label === "Чаты" ? "/chats" : label === "Контакты" ? "/contacts" : "/settings";
-        return (
-          <NavLink
-            key={idx}
-            to={path}
-            end
-            style={({ isActive }) => ({
-              flex: "1 1 0",
-              textAlign: "center",
-              color: isActive ? "#0f0" : "#555",
-              textDecoration: "none",
-              fontWeight: isActive ? "900" : "700",
-              borderBottom: isActive ? "2px solid #0f0" : "2px solid transparent",
-              paddingBottom: 6,
-              transition: "color 0.2s, border-bottom 0.2s",
-            })}
-          >
-            {label}
-          </NavLink>
-        );
-      })}
+      {navItems.map(({ label, path }) => (
+        <NavLink
+          key={label}
+          to={path}
+          end
+          style={({ isActive }) => ({
+            flex: "1 1 0",
+            textAlign: "center",
+            color: isActive ? "#88cc88" : "#555",
+            fontWeight: isActive ? "900" : "700",
+            borderBottom: isActive ? "3px solid #88cc88" : "3px solid transparent",
+            paddingBottom: "8px",
+            fontSize: "1rem",
+            textDecoration: "none",
+            transition: "color 0.3s ease, border-bottom 0.3s ease",
+            cursor: "pointer",
+            userSelect: "none",
+          })}
+          aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+        >
+          {label}
+        </NavLink>
+      ))}
     </nav>
   );
 }

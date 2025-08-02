@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import socket from "../socket";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -56,8 +57,8 @@ export default function Chat() {
   return (
     <div
       style={{
-        backgroundColor: "#000",
-        color: "#eee",
+        backgroundColor: "#0b0b0b",
+        color: "#f2f2f2",
         fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
         width: "100vw",
@@ -75,7 +76,9 @@ export default function Chat() {
           fontSize: "1.25rem",
           fontWeight: "bold",
           userSelect: "none",
-          flexShrink: 0,
+          borderBottom: "1px solid #222",
+          background: "#0b0b0b",
+          zIndex: 10,
         }}
       >
         Чат с {contact}
@@ -86,35 +89,41 @@ export default function Chat() {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "0.5rem 1rem",
-          marginBottom: "4.5rem", // место под поле ввода + панель
+          padding: "0.75rem 1rem",
+          marginBottom: "5rem",
           backgroundColor: "#111",
-          borderTop: "1px solid #333",
         }}
       >
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            style={{
-              marginBottom: "0.75rem",
-              textAlign: msg.from === username ? "right" : "left",
-            }}
-          >
-            <span
+        <AnimatePresence initial={false}>
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               style={{
-                display: "inline-block",
-                padding: "0.5rem 1rem",
-                borderRadius: "12px",
-                backgroundColor: msg.from === username ? "#222" : "#333",
-                color: "#eee",
-                maxWidth: "70%",
-                wordBreak: "break-word",
+                marginBottom: "0.75rem",
+                textAlign: msg.from === username ? "right" : "left",
               }}
             >
-              {msg.text}
-            </span>
-          </div>
-        ))}
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "0.6rem 1rem",
+                  borderRadius: "14px",
+                  backgroundColor: msg.from === username ? "#1e1e1e" : "#2a2a2a",
+                  color: "#f2f2f2",
+                  maxWidth: "70%",
+                  wordBreak: "break-word",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                }}
+              >
+                {msg.text}
+              </span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         <div ref={bottomRef} />
       </div>
 
@@ -126,7 +135,7 @@ export default function Chat() {
           left: 0,
           right: 0,
           padding: "0.5rem 1rem",
-          backgroundColor: "#000",
+          backgroundColor: "#0b0b0b",
           display: "flex",
           gap: "0.5rem",
           alignItems: "center",
@@ -143,34 +152,35 @@ export default function Chat() {
           style={{
             flex: 1,
             padding: "0.75rem 1rem",
-            borderRadius: "8px",
+            borderRadius: "10px",
             border: "1px solid #333",
             backgroundColor: "#111",
             color: "#eee",
             fontFamily: "'Source Code Pro', monospace",
             fontSize: "1rem",
             outline: "none",
-            caretColor: "#0f0",
           }}
           autoComplete="off"
           spellCheck={false}
         />
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
           onClick={sendMessage}
           style={{
             padding: "0.75rem 1rem",
-            backgroundColor: "#0f0",
-            color: "#000",
+            background: "#444",
+            color: "#fff",
             border: "none",
-            borderRadius: "8px",
+            borderRadius: "10px",
             fontWeight: "bold",
-            fontFamily: "'Source Code Pro', monospace",
-            fontSize: "1.25rem",
+            fontSize: "1.2rem",
             cursor: "pointer",
+            fontFamily: "'Source Code Pro', monospace",
           }}
         >
           ➤
-        </button>
+        </motion.button>
       </div>
     </div>
   );

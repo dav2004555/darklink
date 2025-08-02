@@ -23,45 +23,30 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  console.log("Route:", req.method, req.url);
-  next();
-});
-
-// Статика для фронта (если нужно)
-app.use(express.static(path.join(__dirname, "public")));
-
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "secret";
 const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/messenger";
 
-// Подключение к MongoDB
-mongoose
-  .connect(MONGO_URL)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB error:", err));
+// --- MongoDB ---
+mongoose.connect(MONGO_URL)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
-// Модели
-const User = mongoose.model(
-  "User",
-  new mongoose.Schema({
-    username: { type: String, unique: true },
-    password: String,
-    contacts: [String],
-  })
-);
+// --- Models ---
+const User = mongoose.model("User", new mongoose.Schema({
+  username: { type: String, unique: true },
+  password: String,
+  contacts: [String],
+}));
 
-const Message = mongoose.model(
-  "Message",
-  new mongoose.Schema({
-    from: String,
-    to: String,
-    text: String,
-    time: { type: Date, default: Date.now },
-  })
-);
+const Message = mongoose.model("Message", new mongoose.Schema({
+  from: String,
+  to: String,
+  text: String,
+  time: { type: Date, default: Date.now },
+}));
 
-// Middleware проверки токена
+// --- Auth Middleware ---
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token" });
@@ -74,15 +59,17 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// ------------------ API РОУТЫ ------------------
+// --- Online Status (в памяти) ---
+const onlineUsers = new Map();
 
+// --- Routes ---
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
   try {
+    const hashed = await bcrypt.hash(password, 10);
     await User.create({ username, password: hashed, contacts: [] });
     res.json({ success: true });
-  } catch (e) {
+  } catch {
     res.status(400).json({ error: "Username taken" });
   }
 });
@@ -99,14 +86,14 @@ app.post("/api/login", async (req, res) => {
   res.json({ token });
 });
 
-app.get("/api/users", authMiddleware, async (req, res) => {
+app.get("/api/users", authMiddleware, async (_req, res) => {
   const users = await User.find({}, "username").lean();
   res.json(users);
 });
 
 app.get("/api/contacts", authMiddleware, async (req, res) => {
   const user = await User.findOne({ username: req.username });
-  res.json(user.contacts || []);
+  res.json(user?.contacts || []);
 });
 
 app.post("/api/contacts", authMiddleware, async (req, res) => {
@@ -125,7 +112,6 @@ app.post("/api/contacts", authMiddleware, async (req, res) => {
 
   user.contacts.push(contact);
   await user.save();
-
   res.json({ success: true });
 });
 
@@ -143,49 +129,52 @@ app.get("/api/messages/:contact", authMiddleware, async (req, res) => {
   res.json(messages);
 });
 
-// ------------------ SOCKET.IO ------------------
+app.get("/api/online", authMiddleware, (req, res) => {
+  const usernames = req.query.usernames?.split(",") || [];
+  const result = {};
+  usernames.forEach(name => {
+    result[name] = onlineUsers.has(name);
+  });
+  res.json(result);
+});
 
-const onlineUsers = new Map();
-
+// --- Socket.IO ---
 io.on("connection", (socket) => {
-  console.log("Пользователь подключился");
+  console.log("⚡ Пользователь подключился");
 
   socket.on("auth", (username) => {
-    onlineUsers.set(username, socket.id);
-    console.log(`Пользователь ${username} вошёл, socket id: ${socket.id}`);
+    if (username) {
+      onlineUsers.set(username, socket.id);
+      console.log(`🔵 ${username} онлайн`);
+    }
   });
 
   socket.on("message", async ({ from, to, text }) => {
     const newMsg = await Message.create({ from, to, text });
 
-    const toSocketId = onlineUsers.get(to);
-    if (toSocketId) {
-      io.to(toSocketId).emit("message", newMsg);
-    }
-
-    const fromSocketId = onlineUsers.get(from);
-    if (fromSocketId) {
-      io.to(fromSocketId).emit("message", newMsg);
-    }
+    [from, to].forEach((user) => {
+      const socketId = onlineUsers.get(user);
+      if (socketId) io.to(socketId).emit("message", newMsg);
+    });
   });
 
   socket.on("disconnect", () => {
-    for (const [username, id] of onlineUsers.entries()) {
-      if (id === socket.id) {
+    for (const [username, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
         onlineUsers.delete(username);
-        console.log(`Пользователь ${username} вышел`);
+        console.log(`🔴 ${username} оффлайн`);
         break;
       }
     }
   });
 });
 
-// ------------------ SPA fallback ------------------
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// --- SPA Fallback ---
+app.use(express.static(path.join(__dirname, "public")));
+app.get("*", (req, res) =>
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+);
 
 server.listen(PORT, () =>
-  console.log(`🚀 Server started on port ${PORT}`)
+  console.log(`🚀 Server started on http://localhost:${PORT}`)
 );

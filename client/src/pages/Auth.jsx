@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,9 +12,7 @@ export default function Auth() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Для предотвращения дергания экрана на мобилках при фокусе
   useEffect(() => {
-    // Запрет масштабирования при фокусе input в мобильных браузерах
     const metaViewport = document.querySelector('meta[name=viewport]');
     if (!metaViewport) {
       const meta = document.createElement("meta");
@@ -46,35 +45,36 @@ export default function Auth() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#000",
-        color: "#eee",
+        backgroundColor: "#0b0b0b",
+        color: "#f2f2f2",
         fontFamily: "'Source Code Pro', monospace",
         display: "flex",
-        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        padding: "1rem",
+        padding: "2rem",
         boxSizing: "border-box",
       }}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         style={{
-          maxWidth: 360,
           width: "100%",
-          padding: "1rem",
-          boxSizing: "border-box",
-          borderRadius: 8,
-          backgroundColor: "#111",
-          boxShadow: "0 0 10px rgba(0,255,0,0.2)",
+          maxWidth: 400,
+          background: "#111",
+          padding: "2rem",
+          borderRadius: "1rem",
+          boxShadow: "0 0 20px rgba(255,255,255,0.05)",
         }}
       >
         <h2
           style={{
             textAlign: "center",
             marginBottom: "2rem",
-            userSelect: "none",
-            fontWeight: "700",
-            fontSize: "1.8rem",
+            fontWeight: "bold",
+            fontSize: "1.6rem",
+            letterSpacing: "1px",
           }}
         >
           {isLogin ? "Вход" : "Регистрация"}
@@ -83,25 +83,10 @@ export default function Auth() {
         <input
           placeholder="Имя пользователя"
           value={username}
-          onChange={(e) => setUsername(e.target.value.trimStart())} // не даём вводить пробелы в начале
-          style={{
-            background: "#111",
-            color: "#eee",
-            border: "1px solid #444",
-            padding: "0.75rem 1rem",
-            marginBottom: "1rem",
-            width: "100%",
-            fontFamily: "'Source Code Pro', monospace",
-            borderRadius: 6,
-            fontSize: "1rem",
-            boxSizing: "border-box",
-            caretColor: "#0f0",
-            transition: "border-color 0.3s",
-          }}
+          onChange={(e) => setUsername(e.target.value.trimStart())}
           autoComplete="username"
           spellCheck={false}
-          onFocus={(e) => (e.target.style.borderColor = "#0f0")}
-          onBlur={(e) => (e.target.style.borderColor = "#444")}
+          style={inputStyle}
         />
 
         <input
@@ -109,50 +94,19 @@ export default function Auth() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{
-            background: "#111",
-            color: "#eee",
-            border: "1px solid #444",
-            padding: "0.75rem 1rem",
-            marginBottom: "1.5rem",
-            width: "100%",
-            fontFamily: "'Source Code Pro', monospace",
-            borderRadius: 6,
-            fontSize: "1rem",
-            boxSizing: "border-box",
-            caretColor: "#0f0",
-            transition: "border-color 0.3s",
-          }}
           autoComplete="current-password"
           spellCheck={false}
-          onFocus={(e) => (e.target.style.borderColor = "#0f0")}
-          onBlur={(e) => (e.target.style.borderColor = "#444")}
+          style={{ ...inputStyle, marginBottom: "1.5rem" }}
         />
 
-        <button
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.03 }}
           onClick={submit}
-          style={{
-            backgroundColor: "#0f0",
-            color: "#000",
-            border: "none",
-            padding: "0.75rem",
-            width: "100%",
-            fontWeight: "700",
-            cursor: "pointer",
-            borderRadius: 6,
-            fontFamily: "'Source Code Pro', monospace",
-            marginBottom: "1rem",
-            fontSize: "1.1rem",
-            transition: "background-color 0.3s",
-            userSelect: "none",
-          }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0c0")}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0f0")}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          type="button"
+          style={buttonStyle}
         >
           {isLogin ? "Войти" : "Зарегистрироваться"}
-        </button>
+        </motion.button>
 
         <button
           onClick={() => {
@@ -163,38 +117,65 @@ export default function Auth() {
           }}
           style={{
             background: "none",
-            color: "#eee",
             border: "none",
-            cursor: "pointer",
+            color: "#aaa",
             textDecoration: "underline",
-            fontFamily: "'Source Code Pro', monospace",
+            cursor: "pointer",
             width: "100%",
-            padding: "0",
-            userSelect: "none",
+            padding: "0.5rem 0",
             fontSize: "0.9rem",
+            fontFamily: "'Source Code Pro', monospace",
           }}
-          type="button"
         >
           {isLogin ? "Нет аккаунта? Зарегистрироваться" : "Есть аккаунт? Войти"}
         </button>
 
-        {error && (
-          <div
-            style={{
-              color: "#f55",
-              marginTop: "1.5rem",
-              fontFamily: "'Source Code Pro', monospace",
-              textAlign: "center",
-              userSelect: "none",
-              minHeight: "1.4rem",
-              lineHeight: "1.4rem",
-            }}
-            aria-live="polite"
-          >
-            {error}
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                color: "#f55",
+                textAlign: "center",
+                marginTop: "1rem",
+                minHeight: "1.4rem",
+              }}
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "0.75rem 1rem",
+  borderRadius: "0.5rem",
+  border: "1px solid #333",
+  background: "#181818",
+  color: "#f2f2f2",
+  marginBottom: "1rem",
+  fontSize: "1rem",
+  fontFamily: "'Source Code Pro', monospace",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "0.9rem 1rem",
+  borderRadius: "0.5rem",
+  border: "none",
+  background: "#333",
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: "1.1rem",
+  cursor: "pointer",
+  fontFamily: "'Source Code Pro', monospace",
+};

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,26 +14,23 @@ export default function Contacts() {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  const fetchContacts = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/contacts`, {
-        headers: { Authorization: "Bearer " + token },
-      });
-      const data = res.data;
-      const list = Array.isArray(data) ? data : data.contacts;
-      setContacts(list || []);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/contacts`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const list = Array.isArray(res.data) ? res.data : res.data.contacts;
+        setContacts(list || []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
     fetchContacts();
-  }, []);
+  }, [token]);
 
   const searchUser = async () => {
     if (!search.trim()) return;
-
     setError("");
     setSearchResult(null);
     try {
@@ -47,7 +45,7 @@ export default function Contacts() {
       } else {
         setSearchResult(user);
       }
-    } catch (e) {
+    } catch {
       setError("Ошибка поиска");
     }
   };
@@ -73,25 +71,22 @@ export default function Contacts() {
         fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
         width: "100vw",
-        padding: "2rem",
+        padding: "2rem 1rem",
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        overflow: "hidden",
       }}
     >
-      <h2 style={{ marginBottom: "1.5rem", userSelect: "none" }}>Контакты</h2>
+      <h2 style={{ marginBottom: "2rem", userSelect: "none" }}>Контакты</h2>
 
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.75rem",
           width: "100%",
           maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
           marginBottom: "1.5rem",
         }}
       >
@@ -104,34 +99,33 @@ export default function Contacts() {
           aria-label="Поиск пользователя по имени"
           style={{
             width: "100%",
-            padding: "8px 12px",
-            fontFamily: "'Source Code Pro', monospace",
+            padding: "12px",
             fontSize: "1rem",
-            borderRadius: 5,
-            border: "1px solid #444",
+            borderRadius: "8px",
+            border: "1px solid #333",
             backgroundColor: "#111",
             color: "#eee",
+            fontFamily: "'Source Code Pro', monospace",
           }}
         />
         <button
           onClick={searchUser}
           aria-label="Найти пользователя"
           style={{
-            width: "100%",
-            padding: "8px 0",
-            backgroundColor: "#222",
+            padding: "12px",
+            backgroundColor: "#111",
             color: "#eee",
             fontFamily: "'Source Code Pro', monospace",
-            border: "1px solid #444",
-            borderRadius: 5,
+            border: "1px solid #333",
+            borderRadius: "8px",
             cursor: "pointer",
-            transition: "background-color 0.2s",
+            transition: "all 0.2s",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#333")
+            (e.currentTarget.style.backgroundColor = "#1a1a1a")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "#222")
+            (e.currentTarget.style.backgroundColor = "#111")
           }
         >
           Найти
@@ -139,50 +133,55 @@ export default function Contacts() {
       </div>
 
       {error && (
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
           style={{
             color: "#ff4c4c",
             marginBottom: "1rem",
             textAlign: "center",
             userSelect: "none",
           }}
-          role="alert"
         >
           {error}
-        </div>
+        </motion.div>
       )}
 
       {searchResult && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
           onClick={() => handleStartChat(searchResult.username)}
-          aria-label={`Перейти в чат с ${searchResult.username}`}
           style={{
             cursor: "pointer",
             padding: "12px",
-            borderRadius: 5,
-            border: "1px solid #444",
+            borderRadius: "8px",
+            border: "1px solid #333",
+            backgroundColor: "#111",
             width: "100%",
             maxWidth: 400,
-            backgroundColor: "#111",
+            marginBottom: "1.5rem",
+            color: "#eee",
+            fontFamily: "'Source Code Pro', monospace",
             textAlign: "center",
             userSelect: "none",
-            marginBottom: "1.5rem",
             transition: "background-color 0.2s",
-            fontFamily: "'Source Code Pro', monospace",
-            color: "#eee",
           }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#222")
+            (e.currentTarget.style.backgroundColor = "#1a1a1a")
           }
           onMouseLeave={(e) =>
             (e.currentTarget.style.backgroundColor = "#111")
           }
         >
           <b>{searchResult.username}</b>
-        </button>
+        </motion.button>
       )}
 
-      <ul
+      <motion.ul
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         style={{
           listStyle: "none",
           paddingLeft: 0,
@@ -191,16 +190,20 @@ export default function Contacts() {
           maxWidth: 400,
           flexGrow: 1,
           overflowY: "auto",
-          maxHeight: "calc(100vh - 320px)",
-          borderTop: "1px solid #333",
-          borderBottom: "1px solid #333",
+          borderTop: "1px solid #222",
+          borderBottom: "1px solid #222",
           scrollbarWidth: "thin",
-          scrollbarColor: "#0f0 #222",
+          scrollbarColor: "#555 #111",
         }}
         aria-label="Список контактов"
       >
         {contacts.map((contact) => (
-          <li key={contact}>
+          <motion.li
+            key={contact}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+          >
             <button
               onClick={() => handleStartChat(contact)}
               aria-label={`Перейти в чат с ${contact}`}
@@ -208,14 +211,12 @@ export default function Contacts() {
                 all: "unset",
                 display: "block",
                 width: "100%",
-                padding: "10px",
-                borderBottom: "1px solid #333",
+                padding: "12px",
+                borderBottom: "1px solid #222",
                 cursor: "pointer",
-                transition: "background-color 0.2s",
-                userSelect: "none",
                 fontFamily: "'Source Code Pro', monospace",
                 color: "#eee",
-                textAlign: "left",
+                transition: "background-color 0.2s",
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.backgroundColor = "#111")
@@ -226,9 +227,9 @@ export default function Contacts() {
             >
               {contact}
             </button>
-          </li>
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
     </div>
   );
 }

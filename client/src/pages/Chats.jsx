@@ -1,44 +1,68 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import socket from "../socket";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function Chats() {
-  const [contacts, setContacts] = useState([]);
-  const [lastMessages, setLastMessages] = useState({});
-  const token = localStorage.getItem("token");
+export default function Chat() {
+  const { contact } = useParams();
   const username = localStorage.getItem("username");
-  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+  const [online, setOnline] = useState(false);
+  const bottomRef = useRef();
 
   useEffect(() => {
-    async function fetchChats() {
+    socket.emit("auth", username);
+    socket.emit("checkOnline", contact);
+
+    socket.on("onlineStatus", ({ user, status }) => {
+      if (user === contact) setOnline(status);
+    });
+
+    const handleMessage = (msg) => {
+      if (
+        (msg.from === contact && msg.to === username) ||
+        (msg.from === username && msg.to === contact)
+      ) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    };
+
+    socket.on("message", handleMessage);
+
+    return () => {
+      socket.off("message", handleMessage);
+      socket.off("onlineStatus");
+    };
+  }, [contact, username]);
+
+  useEffect(() => {
+    async function fetchMessages() {
       try {
-        const res = await axios.get(`${API_URL}/contacts`, {
+        const res = await axios.get(`${API_URL}/messages/${contact}`, {
           headers: { Authorization: "Bearer " + token },
         });
-        setContacts(res.data);
-
-        const messagesPromises = res.data.map((contact) =>
-          axios.get(`${API_URL}/messages/${contact}`, {
-            headers: { Authorization: "Bearer " + token },
-          })
-        );
-
-        const messagesResponses = await Promise.all(messagesPromises);
-        const lastMsgs = {};
-        messagesResponses.forEach((response, i) => {
-          const msgs = response.data;
-          lastMsgs[res.data[i]] = msgs.length ? msgs[msgs.length - 1].text : "";
-        });
-        setLastMessages(lastMsgs);
+        setMessages(res.data);
       } catch (e) {
-        console.error(e);
+        console.error("Ошибка при загрузке сообщений:", e);
       }
     }
+    fetchMessages();
+  }, [contact, token]);
 
-    fetchChats();
-  }, [token]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = () => {
+    if (!text.trim()) return;
+    socket.emit("message", { from: username, to: contact, text });
+    setText("");
+  };
 
   return (
     <div
@@ -47,97 +71,116 @@ export default function Chats() {
         color: "#eee",
         fontFamily: "'Source Code Pro', monospace",
         height: "100vh",
-        width: "100vw",
         display: "flex",
         flexDirection: "column",
-        padding: "1rem",
-        boxSizing: "border-box",
         overflow: "hidden",
       }}
     >
-      <header
+      {/* Заголовок чата */}
+      <div
         style={{
           textAlign: "center",
-          fontSize: "1.5rem",
-          marginBottom: "1rem",
-          flexShrink: 0,
+          padding: "1rem",
+          fontSize: "1.25rem",
+          fontWeight: "bold",
           userSelect: "none",
-          fontWeight: "600",
+          borderBottom: "1px solid #222",
+          background: "#000",
+          flexShrink: 0,
         }}
       >
-        Чаты
-      </header>
+        {contact}
+        <span style={{ fontSize: "0.85rem", marginLeft: "0.5rem", color: online ? "#0f0" : "#777" }}>
+          ● {online ? "в сети" : "не в сети"}
+        </span>
+      </div>
 
-      {contacts.length === 0 && (
-        <div style={{ textAlign: "center", flexGrow: 1, paddingTop: "2rem", color: "#555" }}>
-          Нет чатов
-        </div>
-      )}
-
-      <ul
+      {/* Сообщения */}
+      <div
         style={{
-          listStyle: "none",
-          paddingLeft: 0,
-          margin: 0,
+          flex: 1,
           overflowY: "auto",
-          flexGrow: 1,
-          borderTop: "1px solid #333",
-          borderBottom: "1px solid #333",
-          scrollbarWidth: "thin",
-          scrollbarColor: "#0f0 #222",
+          padding: "1rem",
+          backgroundColor: "#111",
         }}
-        aria-label="Список контактов"
       >
-        {contacts.map((contact) => (
-          <li key={contact}>
-            <button
-              onClick={async () => {
-                try {
-                  await axios.post(
-                    `${API_URL}/contacts`,
-                    { contact },
-                    {
-                      headers: { Authorization: "Bearer " + token },
-                    }
-                  );
-                } catch (e) {
-                  console.log("Контакт уже добавлен или ошибка");
-                }
-                navigate(`/chat/${contact}`);
-              }}
+        {messages.map((msg, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              marginBottom: "0.75rem",
+              textAlign: msg.from === username ? "right" : "left",
+            }}
+          >
+            <span
               style={{
-                all: "unset",
-                display: "block",
-                width: "100%",
-                padding: "1rem",
-                borderBottom: "1px solid #333",
-                cursor: "pointer",
-                transition: "background-color 0.25s ease",
-                textAlign: "left",
+                display: "inline-block",
+                padding: "0.5rem 1rem",
+                borderRadius: "10px",
+                backgroundColor: msg.from === username ? "#222" : "#333",
                 color: "#eee",
-                fontFamily: "'Source Code Pro', monospace",
+                maxWidth: "70%",
+                wordBreak: "break-word",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#111")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-              aria-label={`Перейти в чат с ${contact}`}
             >
-              <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{contact}</div>
-              <div
-                style={{
-                  color: "#777",
-                  fontSize: "0.9rem",
-                  marginTop: "0.25rem",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {lastMessages[contact] || "Нет сообщений"}
-              </div>
-            </button>
-          </li>
+              {msg.text}
+            </span>
+          </motion.div>
         ))}
-      </ul>
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Ввод сообщения */}
+      <div
+        style={{
+          padding: "0.75rem",
+          backgroundColor: "#000",
+          display: "flex",
+          gap: "0.5rem",
+          alignItems: "center",
+          borderTop: "1px solid #222",
+        }}
+      >
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Сообщение..."
+          style={{
+            flex: 1,
+            padding: "0.75rem 1rem",
+            borderRadius: "8px",
+            border: "1px solid #333",
+            backgroundColor: "#111",
+            color: "#eee",
+            fontFamily: "'Source Code Pro', monospace",
+            fontSize: "1rem",
+            outline: "none",
+            caretColor: "#0f0",
+          }}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <button
+          onClick={sendMessage}
+          style={{
+            padding: "0.75rem 1rem",
+            backgroundColor: "#0f0",
+            color: "#000",
+            border: "none",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            fontFamily: "'Source Code Pro', monospace",
+            fontSize: "1.25rem",
+            cursor: "pointer",
+          }}
+        >
+          ➤
+        </button>
+      </div>
     </div>
   );
 }
