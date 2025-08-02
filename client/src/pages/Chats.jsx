@@ -36,6 +36,7 @@ export default function Chats() {
         console.error(e);
       }
     }
+
     fetchChats();
   }, [token]);
 
@@ -90,9 +91,22 @@ export default function Chats() {
         {contacts.map((contact) => (
           <li key={contact}>
             <button
-              onClick={() => navigate(`/chat/${contact}`)}
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    `${API_URL}/contacts`,
+                    { contact },
+                    {
+                      headers: { Authorization: "Bearer " + token },
+                    }
+                  );
+                } catch (e) {
+                  console.log("Контакт уже добавлен или ошибка");
+                }
+                navigate(`/chat/${contact}`);
+              }}
               style={{
-                all: "unset", // убираем дефолтные стили кнопки
+                all: "unset",
                 display: "block",
                 width: "100%",
                 padding: "1rem",
@@ -108,7 +122,16 @@ export default function Chats() {
               aria-label={`Перейти в чат с ${contact}`}
             >
               <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{contact}</div>
-              <div style={{ color: "#777", fontSize: "0.9rem", marginTop: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div
+                style={{
+                  color: "#777",
+                  fontSize: "0.9rem",
+                  marginTop: "0.25rem",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {lastMessages[contact] || "Нет сообщений"}
               </div>
             </button>

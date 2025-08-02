@@ -52,6 +52,19 @@ export default function Contacts() {
     }
   };
 
+  const handleStartChat = async (contactName) => {
+    try {
+      await axios.post(
+        `${API_URL}/contacts`,
+        { contact: contactName },
+        { headers: { Authorization: "Bearer " + token } }
+      );
+    } catch (e) {
+      console.log("Контакт уже добавлен или ошибка");
+    }
+    navigate(`/chat/${contactName}`);
+  };
+
   return (
     <div
       style={{
@@ -141,7 +154,7 @@ export default function Contacts() {
 
       {searchResult && (
         <button
-          onClick={() => navigate(`/chat/${searchResult.username}`)}
+          onClick={() => handleStartChat(searchResult.username)}
           aria-label={`Перейти в чат с ${searchResult.username}`}
           style={{
             cursor: "pointer",
@@ -157,8 +170,6 @@ export default function Contacts() {
             transition: "background-color 0.2s",
             fontFamily: "'Source Code Pro', monospace",
             color: "#eee",
-            all: "unset",
-            display: "block",
           }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.backgroundColor = "#222")
@@ -191,7 +202,7 @@ export default function Contacts() {
         {contacts.map((contact) => (
           <li key={contact}>
             <button
-              onClick={() => navigate(`/chat/${contact}`)}
+              onClick={() => handleStartChat(contact)}
               aria-label={`Перейти в чат с ${contact}`}
               style={{
                 all: "unset",
